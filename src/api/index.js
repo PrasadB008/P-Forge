@@ -18,16 +18,16 @@ app.get('/tasks', async (_req, res) => {
 
 // POST /tasks — create a task
 app.post('/tasks', async (req, res) => {
-  const { title } = req.body;
-  if (!title || typeof title !== 'string' || !title.trim()) {
-    return res.status(400).json({ error: 'title is required' });
+  const { name } = req.body;
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ error: 'name is required' });
   }
-  if (title.trim().length > 200) {
-    return res.status(400).json({ error: 'title must be 200 characters or less' });
+  if (name.trim().length > 200) {
+    return res.status(400).json({ error: 'name must be 200 characters or less' });
   }
   const { rows } = await db.query(
-    'INSERT INTO tasks (title) VALUES ($1) RETURNING *',
-    [title.trim()]
+    'INSERT INTO tasks (name) VALUES ($1) RETURNING *',
+    [name.trim()]
   );
   res.status(201).json(rows[0]);
 });
@@ -35,18 +35,18 @@ app.post('/tasks', async (req, res) => {
 // PATCH /tasks/:id — update a task (complete/uncomplete or rename)
 app.patch('/tasks/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const { completed, title } = req.body;
+  const { completed, name } = req.body;
 
   const { rows } = await db.query('SELECT * FROM tasks WHERE id = $1', [id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
   const current = rows[0];
   const newCompleted = completed !== undefined ? Boolean(completed) : current.completed;
-  const newTitle = title !== undefined ? title.trim() : current.title;
+  const newName = name !== undefined ? name.trim() : current.name;
 
   const { rows: updated } = await db.query(
-    'UPDATE tasks SET completed = $1, title = $2 WHERE id = $3 RETURNING *',
-    [newCompleted, newTitle, id]
+    'UPDATE tasks SET completed = $1, name = $2 WHERE id = $3 RETURNING *',
+    [newCompleted, newName, id]
   );
   res.json(updated[0]);
 });

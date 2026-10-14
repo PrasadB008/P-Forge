@@ -42,8 +42,8 @@ describe('GET /tasks', () => {
 
   it('should return all tasks ordered by created_at', async () => {
     const mockTasks = [
-      { id: 1, title: 'Task 1', completed: false, created_at: '2024-01-01T00:00:00Z' },
-      { id: 2, title: 'Task 2', completed: true, created_at: '2024-01-02T00:00:00Z' },
+      { id: 1, name: 'Task 1', completed: false, created_at: '2024-01-01T00:00:00Z' },
+      { id: 2, name: 'Task 2', completed: true, created_at: '2024-01-02T00:00:00Z' },
     ];
     db.query.mockResolvedValue({ rows: mockTasks });
 

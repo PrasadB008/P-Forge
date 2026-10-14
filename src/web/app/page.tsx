@@ -13,7 +13,7 @@ export default async function Home() {
         {/* Add task form */}
         <form action={createTask} className="flex gap-2 mb-8">
           <input
-            name="title"
+            name="name"
             type="text"
             required
             placeholder="Add a new task..."
@@ -66,7 +66,7 @@ export default async function Home() {
                     : 'text-zinc-800 dark:text-zinc-100'
                 }`}
               >
-                {task.title}
+                {task.name}
               </span>
             </li>
           ))}
