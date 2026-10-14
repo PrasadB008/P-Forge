@@ -1,4 +1,4 @@
-import { getTasks, createTask, toggleTask } from './actions';
+import { getTasks, createTask, toggleTask, clearCompleted } from './actions';
 
 export default async function Home() {
   const tasks = await getTasks();
@@ -13,7 +13,7 @@ export default async function Home() {
         {/* Add task form */}
         <form action={createTask} className="flex gap-2 mb-8">
           <input
-            name="title"
+            name="name"
             type="text"
             required
             placeholder="Add a new task..."
@@ -66,16 +66,33 @@ export default async function Home() {
                     : 'text-zinc-800 dark:text-zinc-100'
                 }`}
               >
-                {task.title}
+                {task.name}
               </span>
             </li>
           ))}
         </ul>
 
         {tasks.length > 0 && (
-          <p className="mt-4 text-xs text-zinc-400 text-right">
-            {tasks.filter((t) => t.completed).length} / {tasks.length} completed
-          </p>
+          <div className="mt-6 flex items-center justify-between">
+            <p className="text-xs text-zinc-400">
+              {tasks.filter((t) => t.completed).length} / {tasks.length} completed
+            </p>
+            {tasks.some((t) => t.completed) && (
+              <form
+                action={async () => {
+                  'use server';
+                  await clearCompleted(tasks);
+                }}
+              >
+                <button
+                  type="submit"
+                  className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300 transition-colors"
+                >
+                  Clear completed
+                </button>
+              </form>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -6,7 +6,7 @@ const API_URL = process.env.API_URL || 'http://localhost:3001';
 
 export type Task = {
   id: number;
-  title: string;
+  name: string;
   completed: boolean;
   created_at: string;
 };
@@ -18,11 +18,11 @@ export async function getTasks(): Promise<Task[]> {
 }
 
 export async function createTask(formData: FormData) {
-  const title = formData.get('title') as string;
+  const name = formData.get('name') as string;
   await fetch(`${API_URL}/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({ name }),
   });
   revalidatePath('/');
 }
@@ -33,5 +33,18 @@ export async function toggleTask(id: number, completed: boolean) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ completed }),
   });
+  revalidatePath('/');
+}
+
+export async function clearCompleted(tasks: Task[]) {
+  const completedTasks = tasks.filter((t) => t.completed);
+  await Promise.all(
+    completedTasks.map((task) =>
+      fetch(`${API_URL}/tasks/${task.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+  );
   revalidatePath('/');
 }
