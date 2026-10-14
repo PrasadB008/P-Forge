@@ -22,6 +22,9 @@ app.post('/tasks', async (req, res) => {
   if (!title || typeof title !== 'string' || !title.trim()) {
     return res.status(400).json({ error: 'title is required' });
   }
+  if (title.trim().length > 200) {
+    return res.status(400).json({ error: 'title must be 200 characters or less' });
+  }
   const { rows } = await db.query(
     'INSERT INTO tasks (title) VALUES ($1) RETURNING *',
     [title.trim()]
