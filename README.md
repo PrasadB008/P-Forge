@@ -130,3 +130,7 @@ DATABASE_URL=postgres://app:app@localhost:5432/app npx node-pg-migrate down
 ```
 
 When running via Docker Compose the `migrate` service handles this automatically on startup.
+
+## Forge test
+
+This section was added by Forge Code to demonstrate the ability to modify and commit changes to the repository.
