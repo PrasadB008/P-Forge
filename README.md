@@ -137,3 +137,5 @@ Forge PR/CI live test.
 ## Wiki
 
 This repo has a Forge wiki that is kept in sync with `main`.
+
+Wiki sync check: verified on main branch.
