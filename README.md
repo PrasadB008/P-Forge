@@ -1,4 +1,4 @@
-# example-three-tier-application
+# P-Forge  Forge PR workflow test
 
 A reference implementation of a three-tier web application: a Next.js frontend, an Express REST API, and a PostgreSQL database. It runs locally with Docker Compose and deploys to Google Cloud Platform (Cloud Run + Cloud SQL) via Terraform.
 
@@ -139,3 +139,9 @@ Forge PR/CI live test.
 This repo has a Forge wiki that is kept in sync with `main`.
 
 Wiki sync check: verified on main branch.
+
+## Forge workflow checks
+
+Workflow label: alpha.
+
+Review label: draft.
