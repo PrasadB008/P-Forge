@@ -4,4 +4,9 @@ function sumNumbers(a, b) {
   return a + b;
 }
 
-module.exports = { sumNumbers };
+// Intended behavior: return the numeric product of a and b (a * b).
+function multiplyNumbers(a, b) {
+  return a * b;
+}
+
+module.exports = { sumNumbers, multiplyNumbers };
