@@ -130,3 +130,15 @@ DATABASE_URL=postgres://app:app@localhost:5432/app npx node-pg-migrate down
 ```
 
 When running via Docker Compose the `migrate` service handles this automatically on startup.
+
+## Contributing
+
+Contributions are welcome! To get started:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Make your changes and test them locally with `docker compose up --build`
+4. Commit your changes with clear messages
+5. Push to your fork and open a pull request
+
+Please ensure your code follows the existing style and includes appropriate tests or documentation updates.
