@@ -130,3 +130,30 @@ DATABASE_URL=postgres://app:app@localhost:5432/app npx node-pg-migrate down
 ```
 
 When running via Docker Compose the `migrate` service handles this automatically on startup.
+
+## FAQ
+
+**Q: How do I access the API directly?**  
+A: The API is not exposed by default for security. To access it locally, you can:
+- Use the web frontend (which calls the API internally)
+- Temporarily expose port 3001 by modifying `docker-compose.yml` and adding `ports: ["3001:3001"]` to the `api` service
+
+**Q: Can I use a different database?**  
+A: This project is designed for PostgreSQL. To use a different database, you would need to update the connection logic in `src/api/db.js` and rewrite the migrations in `src/db/migrations/`.
+
+**Q: How do I debug the application?**  
+A: You can view logs for each service with:
+```bash
+docker compose logs -f [service-name]  # e.g., docker compose logs -f api
+```
+
+**Q: What if I get a "port already in use" error?**  
+A: Change the port mapping in `docker-compose.yml` or stop the service using that port. For example, to use port 3001 for the web frontend instead of 3000, change `"3000:3000"` to `"3001:3000"`.
+
+**Q: How do I reset the database?**  
+A: Run:
+```bash
+docker compose down -v
+docker compose up --build
+```
+This removes all volumes (including the database) and rebuilds everything from scratch.
