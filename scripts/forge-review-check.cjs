@@ -9,4 +9,9 @@ function multiplyNumbers(a, b) {
   return a * b;
 }
 
-module.exports = { sumNumbers, multiplyNumbers };
+// Intended behavior: return the numeric difference of a and b (a - b).
+function subtractNumbers(a, b) {
+  return a - b;
+}
+
+module.exports = { sumNumbers, multiplyNumbers, subtractNumbers };
