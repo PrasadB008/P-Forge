@@ -1,3 +1,4 @@
+<!-- mode-switch-cobalt-orchid-731 -->
 # Contributing to P-Forge
 
 Thank you for your interest in contributing to P-Forge! This guide will help you set up the project locally and get started.
