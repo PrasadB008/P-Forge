@@ -116,6 +116,19 @@ terraform apply -var="project_id=my-project" \
 
 After apply, `terraform output web_url` gives the public URL.
 
+## Contributing
+
+We welcome contributions! To get started:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Make your changes and test them locally with `docker compose up --build`
+4. Commit your changes (`git commit -am 'Add your feature'`)
+5. Push to your branch (`git push origin feature/your-feature`)
+6. Open a Pull Request
+
+Please ensure your code follows the existing style and includes appropriate tests.
+
 ## Database migrations
 
 Migrations live in `src/db/migrations/` and use [node-pg-migrate](https://salsita.github.io/node-pg-migrate/).
