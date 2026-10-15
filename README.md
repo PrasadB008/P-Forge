@@ -116,6 +116,25 @@ terraform apply -var="project_id=my-project" \
 
 After apply, `terraform output web_url` gives the public URL.
 
+## FAQ
+
+**Q: How do I access the API directly?**  
+A: The API is not exposed by default. To access it, you can either:
+- Make requests from within the web container (it can reach `http://api:3001`)
+- Temporarily expose the API port by adding `ports: ["3001:3001"]` to the `api` service in `docker-compose.yml`
+
+**Q: Can I use this with a different database?**  
+A: This project is built specifically for PostgreSQL. To use a different database, you would need to update the connection logic in `src/api/db.js` and modify the migrations.
+
+**Q: How do I add a new API endpoint?**  
+A: Add a new route handler in `src/api/index.js`, then restart the API service with `docker compose up --build`.
+
+**Q: What if I want to deploy to a different cloud provider?**  
+A: The Terraform code in `src/infrastructure/` is GCP-specific. You would need to rewrite it for your target provider (AWS, Azure, etc.).
+
+**Q: How do I debug the application?**  
+A: Check logs with `docker compose logs -f [service]` (e.g., `docker compose logs -f api`). For the Next.js frontend, you can also open the browser DevTools.
+
 ## Database migrations
 
 Migrations live in `src/db/migrations/` and use [node-pg-migrate](https://salsita.github.io/node-pg-migrate/).
