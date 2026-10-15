@@ -94,6 +94,11 @@ export default async function Home() {
             )}
           </div>
         )}
+
+        {/* Footer */}
+        <footer className="mt-16 text-center text-sm text-zinc-500 dark:text-zinc-400">
+          Built with Forge
+        </footer>
       </div>
     </div>
   );
