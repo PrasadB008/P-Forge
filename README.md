@@ -8,6 +8,8 @@ A reference implementation of a three-tier web application: a Next.js frontend, 
 Browser → Web (Next.js :3000) → API (Express :3001) → PostgreSQL
 ```
 
+See [docs/architecture.md](docs/architecture.md) for detailed diagrams (request flow, Docker Compose, GCP).
+
 | Layer | Technology | Location |
 |-------|-----------|----------|
 | Frontend | Next.js 16, React 19, Tailwind CSS | `src/web/` |
