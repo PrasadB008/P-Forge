@@ -180,6 +180,50 @@ describe('PATCH /tasks/:id', () => {
   });
 });
 
+describe('PUT /tasks/:id', () => {
+  it.each(['low', 'medium', 'high'])('replaces a task with priority %s', async (priority) => {
+    db.query
+      .mockResolvedValueOnce({ rows: [task()] })
+      .mockResolvedValueOnce({ rows: [task({ name: 'Updated', priority })] });
+
+    const response = await request(app).put('/tasks/1').send({ name: 'Updated', priority });
+
+    expect(response.status).toBe(200);
+    expect(response.body.priority).toBe(priority);
+    expect(db.query).toHaveBeenLastCalledWith(
+      'UPDATE tasks SET name = $1, priority = $2 WHERE id = $3 RETURNING *',
+      ['Updated', priority, 1]
+    );
+  });
+
+  it.each([['urgent'], [''], [null], [2], [undefined]])(
+    'returns 400 for invalid priority %j',
+    async (priority) => {
+      const response = await request(app).put('/tasks/1').send({ name: 'Updated', priority });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'invalid priority' });
+      expect(db.query).not.toHaveBeenCalled();
+    }
+  );
+
+  it('returns 400 when name is missing', async () => {
+    const response = await request(app).put('/tasks/1').send({ priority: 'low' });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name is required' });
+  });
+
+  it('returns 404 when the task does not exist', async () => {
+    db.query.mockResolvedValueOnce({ rows: [] });
+
+    const response = await request(app).put('/tasks/99').send({ name: 'Updated', priority: 'low' });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'Not found' });
+  });
+});
+
 describe('DELETE /tasks/:id', () => {
   it('deletes an existing task', async () => {
     db.query.mockResolvedValueOnce({ rows: [task()] }).mockResolvedValueOnce({ rows: [] });

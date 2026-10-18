@@ -73,6 +73,28 @@ app.patch('/tasks/:id', async (req, res) => {
   res.json(updated[0]);
 });
 
+// PUT /tasks/:id — replace a task (requires name and priority)
+app.put('/tasks/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { name, priority } = req.body || {};
+
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ error: 'name is required' });
+  }
+  if (priority === undefined || !isValidPriority(priority)) {
+    return res.status(400).json({ error: 'invalid priority' });
+  }
+
+  const { rows } = await db.query('SELECT * FROM tasks WHERE id = $1', [id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+  const { rows: updated } = await db.query(
+    'UPDATE tasks SET name = $1, priority = $2 WHERE id = $3 RETURNING *',
+    [name.trim(), priority, id]
+  );
+  res.json(updated[0]);
+});
+
 // DELETE /tasks/:id — delete a task
 app.delete('/tasks/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
