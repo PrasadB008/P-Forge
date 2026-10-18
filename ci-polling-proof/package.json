@@ -1,0 +1,9 @@
+{
+  "name": "ci-polling-proof",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Isolated package used to prove Forge's CI polling and fix loop",
+  "scripts": {
+    "test": "node --test"
+  }
+}

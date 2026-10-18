@@ -1,0 +1,22 @@
+name: Polling Proof
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'forge/**'
+
+jobs:
+  test:
+    # pull_request "branches" filters on the base branch, so restrict by head branch here.
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'forge/')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ci-polling-proof
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
