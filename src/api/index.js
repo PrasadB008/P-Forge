@@ -7,6 +7,9 @@ const PORT = process.env.PORT || 3001;
 const PRIORITIES = ['low', 'medium', 'high'];
 const isValidPriority = (value) => typeof value === 'string' && PRIORITIES.includes(value);
 
+const MAX_NAME_LENGTH = 100;
+const NAME_TOO_LONG_ERROR = `name must be ${MAX_NAME_LENGTH} characters or less`;
+
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
@@ -36,8 +39,8 @@ app.post('/tasks', async (req, res) => {
   if (!name || typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({ error: 'name is required' });
   }
-  if (name.trim().length > 200) {
-    return res.status(400).json({ error: 'name must be 200 characters or less' });
+  if (name.trim().length > MAX_NAME_LENGTH) {
+    return res.status(400).json({ error: NAME_TOO_LONG_ERROR });
   }
   if (priority !== undefined && !isValidPriority(priority)) {
     return res.status(400).json({ error: 'invalid priority' });
