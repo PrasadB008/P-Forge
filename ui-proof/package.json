@@ -1,0 +1,10 @@
+{
+  "name": "ui-proof",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test-only fixture for UI proof of command output and cancellation",
+  "scripts": {
+    "test": "node --test slow.test.cjs",
+    "test:quick": "node --test sum.test.cjs"
+  }
+}
