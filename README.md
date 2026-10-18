@@ -18,6 +18,18 @@ Browser → Web (Next.js :3000) → API (Express :3001) → PostgreSQL
 
 The app is a simple task manager (to-do list) that demonstrates how the three tiers communicate.
 
+## Local development
+
+To run the entire stack locally, use Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+This command builds and starts all services (PostgreSQL, migrations, API, and web frontend) in a single step. The frontend is accessible at [http://localhost:3000](http://localhost:3000).
+
+For more details on the services, ports, and cleanup, see [Running locally with Docker Compose](#running-locally-with-docker-compose) below.
+
 ## Running locally with Docker Compose
 
 ### Prerequisites
