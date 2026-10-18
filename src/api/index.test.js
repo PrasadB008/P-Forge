@@ -128,10 +128,10 @@ describe('POST /tasks', () => {
   });
 
   it('returns 400 when name is too long', async () => {
-    const response = await request(app).post('/tasks').send({ name: 'a'.repeat(201) });
+    const response = await request(app).post('/tasks').send({ name: 'a'.repeat(101) });
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'name must be 200 characters or less' });
+    expect(response.body).toEqual({ error: 'name must be 100 characters or less' });
   });
 });
 
