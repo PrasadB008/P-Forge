@@ -3,6 +3,7 @@ const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const MAX_NAME_LENGTH = 100;
 
 app.use(express.json());
 
@@ -29,8 +30,8 @@ app.post('/tasks', async (req, res) => {
   if (!name || typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({ error: 'name is required' });
   }
-  if (name.trim().length > 200) {
-    return res.status(400).json({ error: 'name must be 200 characters or less' });
+  if (name.trim().length > MAX_NAME_LENGTH) {
+    return res.status(400).json({ error: `name must be ${MAX_NAME_LENGTH} characters or less` });
   }
   const { rows } = await db.query(
     'INSERT INTO tasks (name) VALUES ($1) RETURNING *',
@@ -53,8 +54,8 @@ app.patch('/tasks/:id', async (req, res) => {
     if (typeof name !== 'string' || !name.trim()) {
       return res.status(400).json({ error: 'name is required' });
     }
-    if (name.trim().length > 200) {
-      return res.status(400).json({ error: 'name must be 200 characters or less' });
+    if (name.trim().length > MAX_NAME_LENGTH) {
+      return res.status(400).json({ error: `name must be ${MAX_NAME_LENGTH} characters or less` });
     }
   }
 

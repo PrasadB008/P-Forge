@@ -50,6 +50,43 @@ describe('GET /tasks', () => {
   });
 });
 
+describe('POST /tasks', () => {
+  it('returns 400 with a 100-character message when the name is 101 characters', async () => {
+    const response = await request(app).post('/tasks').send({ name: 'a'.repeat(101) });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name must be 100 characters or less' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when the name is 101 characters after padding', async () => {
+    const response = await request(app).post('/tasks').send({ name: `  ${'a'.repeat(101)}  ` });
+
+    expect(response.status).toBe(400);
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it('creates a task with a 100-character name, trimmed', async () => {
+    const name = 'a'.repeat(100);
+    db.query.mockResolvedValueOnce({ rows: [{ id: 1, name, completed: false }] });
+
+    const response = await request(app).post('/tasks').send({ name: `  ${name}  ` });
+
+    expect(response.status).toBe(201);
+    expect(db.query).toHaveBeenCalledWith(
+      'INSERT INTO tasks (name) VALUES ($1) RETURNING *',
+      [name]
+    );
+  });
+
+  it('returns 400 when the name is missing', async () => {
+    const response = await request(app).post('/tasks').send({});
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name is required' });
+  });
+});
+
 describe('PATCH /tasks/:id', () => {
   const existing = { id: 5, name: 'Old', completed: false };
 
@@ -107,8 +144,8 @@ describe('PATCH /tasks/:id', () => {
       ['boolean', true],
       ['object', {}],
       ['array', ['a']],
-      ['201 characters', 'a'.repeat(201)],
-      ['201 characters after padding', `  ${'a'.repeat(201)}  `],
+      ['101 characters', 'a'.repeat(101)],
+      ['101 characters after padding', `  ${'a'.repeat(101)}  `],
     ])('returns 400 when name is %s', async (_label, value) => {
       const response = await request(app).patch('/tasks/5').send({ name: value });
 
@@ -117,8 +154,15 @@ describe('PATCH /tasks/:id', () => {
       expect(db.query).not.toHaveBeenCalled();
     });
 
-    it('accepts a 200-character name and trims it', async () => {
-      const name = 'a'.repeat(200);
+    it('says 100 in the error message when the name is too long', async () => {
+      const response = await request(app).patch('/tasks/5').send({ name: 'a'.repeat(101) });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'name must be 100 characters or less' });
+    });
+
+    it('accepts a 100-character name and trims it', async () => {
+      const name = 'a'.repeat(100);
       db.query
         .mockResolvedValueOnce({ rows: [existing] })
         .mockResolvedValueOnce({ rows: [{ ...existing, name }] });
