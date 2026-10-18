@@ -36,8 +36,8 @@ app.post('/tasks', async (req, res) => {
   if (!name || typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({ error: 'name is required' });
   }
-  if (name.trim().length > 200) {
-    return res.status(400).json({ error: 'name must be 200 characters or less' });
+  if (name.trim().length > MAX_NAME_LENGTH) {
+    return res.status(400).json({ error: NAME_TOO_LONG_ERROR });
   }
   if (priority !== undefined && !isValidPriority(priority)) {
     return res.status(400).json({ error: 'invalid priority' });
