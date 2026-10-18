@@ -61,6 +61,10 @@ app.delete('/tasks/:id', async (req, res) => {
   res.status(204).send();
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API listening on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API listening on port ${PORT}`);
+  });
+}
+
+module.exports = app;
