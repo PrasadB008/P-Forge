@@ -139,3 +139,15 @@ Forge PR/CI live test.
 This repo has a Forge wiki that is kept in sync with `main`.
 
 Wiki sync check: verified on main branch.
+
+## API
+
+The Express API (`src/api/index.js`) exposes these endpoints:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Health check; returns `{ "status": "ok" }` |
+| GET | `/tasks` | List all tasks |
+| POST | `/tasks` | Create a task (`name` required, max 200 characters) |
+| PATCH | `/tasks/:id` | Update a task's `completed` state or `name` |
+| DELETE | `/tasks/:id` | Delete a task |
