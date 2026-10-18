@@ -133,6 +133,7 @@ When running via Docker Compose the `migrate` service handles this automatically
 
 Forge PR/CI live test.
 
+Queue test
 
 ## Wiki
 
