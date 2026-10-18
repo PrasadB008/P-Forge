@@ -18,6 +18,10 @@ Browser → Web (Next.js :3000) → API (Express :3001) → PostgreSQL
 
 The app is a simple task manager (to-do list) that demonstrates how the three tiers communicate.
 
+## API
+
+The Express API runs on port 3001 and provides REST endpoints for task management. It connects to PostgreSQL and serves requests from the Next.js frontend. API documentation and endpoints are available in `src/api/README.md`.
+
 ## Running locally with Docker Compose
 
 ### Prerequisites
