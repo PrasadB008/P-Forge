@@ -9,7 +9,12 @@ export type Task = {
   name: string;
   completed: boolean;
   created_at: string;
+  priority: Priority;
 };
+
+export type Priority = 'low' | 'medium' | 'high';
+
+const PRIORITIES: Priority[] = ['low', 'medium', 'high'];
 
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${API_URL}/tasks`, { cache: 'no-store' });
@@ -19,10 +24,14 @@ export async function getTasks(): Promise<Task[]> {
 
 export async function createTask(formData: FormData) {
   const name = formData.get('name') as string;
+  const rawPriority = formData.get('priority');
+  const priority: Priority = PRIORITIES.includes(rawPriority as Priority)
+    ? (rawPriority as Priority)
+    : 'medium';
   await fetch(`${API_URL}/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, priority }),
   });
   revalidatePath('/');
 }
