@@ -22,8 +22,8 @@ app.post('/tasks', async (req, res) => {
   if (!name || typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({ error: 'name is required' });
   }
-  if (name.trim().length > 200) {
-    return res.status(400).json({ error: 'name must be 200 characters or less' });
+  if (name.trim().length > 100) {
+    return res.status(400).json({ error: 'name must be 100 characters or less' });
   }
   const { rows } = await db.query(
     'INSERT INTO tasks (name) VALUES ($1) RETURNING *',
