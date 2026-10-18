@@ -7,6 +7,9 @@ const PORT = process.env.PORT || 3001;
 const PRIORITIES = ['low', 'medium', 'high'];
 const isValidPriority = (value) => typeof value === 'string' && PRIORITIES.includes(value);
 
+const MAX_NAME_LENGTH = 100;
+const NAME_TOO_LONG_ERROR = `name must be ${MAX_NAME_LENGTH} characters or less`;
+
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
