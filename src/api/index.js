@@ -54,6 +54,14 @@ app.patch('/tasks/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { completed, name, priority } = req.body || {};
 
+  if (name !== undefined) {
+    if (typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ error: 'name is required' });
+    }
+    if (name.trim().length > 200) {
+      return res.status(400).json({ error: 'name must be 200 characters or less' });
+    }
+  }
   if (priority !== undefined && !isValidPriority(priority)) {
     return res.status(400).json({ error: 'invalid priority' });
   }

@@ -170,6 +170,46 @@ describe('PATCH /tasks/:id', () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it('trims and saves a valid new name', async () => {
+    db.query
+      .mockResolvedValueOnce({ rows: [task()] })
+      .mockResolvedValueOnce({ rows: [task({ name: 'Renamed' })] });
+
+    const response = await request(app).patch('/tasks/1').send({ name: '  Renamed  ' });
+
+    expect(response.status).toBe(200);
+    expect(db.query).toHaveBeenLastCalledWith(expect.any(String), [false, 'Renamed', 'medium', 1]);
+  });
+
+  it('accepts a name of exactly 200 characters', async () => {
+    const name = 'a'.repeat(200);
+    db.query
+      .mockResolvedValueOnce({ rows: [task()] })
+      .mockResolvedValueOnce({ rows: [task({ name })] });
+
+    const response = await request(app).patch('/tasks/1').send({ name });
+
+    expect(response.status).toBe(200);
+  });
+
+  it.each([[''], ['   '], [null], [123]])('returns 400 for empty or invalid name %j', async (name) => {
+    const response = await request(app).patch('/tasks/1').send({ name });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name is required' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when name is too long', async () => {
+    const response = await request(app)
+      .patch('/tasks/1')
+      .send({ name: 'a'.repeat(201) });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name must be 200 characters or less' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
   it('returns 404 when the task does not exist', async () => {
     db.query.mockResolvedValueOnce({ rows: [] });
 
