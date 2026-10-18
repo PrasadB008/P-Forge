@@ -3,5 +3,5 @@
 Test-only fixture. Based on `ui-proof/sum.test.cjs`:
 
 - Uses `node:test` and `node:assert`.
-- One test checks that `sum(2, 3)` equals `5`.
+- One test, `sum(2, 3) === 5`, which checks `sum(2, 3)` with `assert.strictEqual(..., 5)`.
 - Run it with `npm run test:quick`.
