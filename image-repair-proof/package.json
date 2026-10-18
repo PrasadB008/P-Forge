@@ -1,0 +1,8 @@
+{
+  "name": "image-repair-proof",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test sum.test.cjs"
+  }
+}
