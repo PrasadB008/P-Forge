@@ -24,6 +24,11 @@ describe('GET /health', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: 'ok' });
   });
+
+  it('does not return 200 for a non-GET request (POST)', async () => {
+    const response = await request(app).post('/health');
+    expect(response.status).not.toBe(200);
+  });
 });
 
 describe('GET /tasks', () => {
