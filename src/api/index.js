@@ -33,13 +33,13 @@ app.get('/tasks', async (req, res) => {
 // POST /tasks — create a task
 app.post('/tasks', async (req, res) => {
   const { name, priority } = req.body || {};
-  if (!name || typeof name !== 'string' || !name.trim()) {
-    return res.status(400).json({ error: 'name is required' });
-  }
-  if (name.trim().length > 200) {
-    return res.status(400).json({ error: 'name must be 200 characters or less' });
-  }
-  if (priority !== undefined && !isValidPriority(priority)) {
+   if (!name || typeof name !== 'string' || !name.trim()) {
+     return res.status(400).json({ error: 'name is required' });
+   }
+   if (name.trim().length > 100) {
+     return res.status(400).json({ error: 'name must be 100 characters or less' });
+   }
+   if (priority !== undefined && !isValidPriority(priority)) {
     return res.status(400).json({ error: 'invalid priority' });
   }
   const { rows } = await db.query(
