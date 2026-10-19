@@ -170,6 +170,14 @@ describe('PATCH /tasks/:id', () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it('returns 400 when name is too long', async () => {
+    const response = await request(app).patch('/tasks/1').send({ name: 'a'.repeat(201) });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name must be 200 characters or less' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
   it('returns 404 when the task does not exist', async () => {
     db.query.mockResolvedValueOnce({ rows: [] });
 
