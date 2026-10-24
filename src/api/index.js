@@ -30,6 +30,13 @@ app.get('/tasks', async (req, res) => {
   res.json(rows);
 });
 
+// GET /tasks/count — total number of tasks
+app.get('/tasks/count', async (_req, res) => {
+  const { rows } = await db.query('SELECT COUNT(*) AS count FROM tasks');
+  // pg returns COUNT (bigint) as a string
+  res.json({ count: Number(rows[0].count) });
+});
+
 // POST /tasks — create a task
 app.post('/tasks', async (req, res) => {
   const { name, priority } = req.body || {};

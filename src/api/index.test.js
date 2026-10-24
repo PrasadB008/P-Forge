@@ -85,6 +85,27 @@ describe('GET /tasks', () => {
   });
 });
 
+describe('GET /tasks/count', () => {
+  it('returns the number of tasks as a number', async () => {
+    db.query.mockResolvedValue({ rows: [{ count: '3' }] });
+
+    const response = await request(app).get('/tasks/count');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ count: 3 });
+    expect(db.query).toHaveBeenCalledWith('SELECT COUNT(*) AS count FROM tasks');
+  });
+
+  it('returns 0 when there are no tasks', async () => {
+    db.query.mockResolvedValue({ rows: [{ count: '0' }] });
+
+    const response = await request(app).get('/tasks/count');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ count: 0 });
+  });
+});
+
 describe('POST /tasks', () => {
   it('defaults priority to medium when omitted', async () => {
     db.query.mockResolvedValue({ rows: [task({ name: 'New' })] });
