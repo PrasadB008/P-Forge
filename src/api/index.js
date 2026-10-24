@@ -30,9 +30,20 @@ app.get('/tasks', async (req, res) => {
   res.json(rows);
 });
 
-// GET /tasks/count — total number of tasks
-app.get('/tasks/count', async (_req, res) => {
-  const { rows } = await db.query('SELECT COUNT(*) AS count FROM tasks');
+// GET /tasks/count — number of tasks, optionally filtered by ?completed=true|false
+app.get('/tasks/count', async (req, res) => {
+  const { completed } = req.query;
+  let rows;
+  if (completed === undefined) {
+    ({ rows } = await db.query('SELECT COUNT(*) AS count FROM tasks'));
+  } else if (completed === 'true' || completed === 'false') {
+    ({ rows } = await db.query(
+      'SELECT COUNT(*) AS count FROM tasks WHERE completed = $1',
+      [completed === 'true']
+    ));
+  } else {
+    return res.status(400).json({ error: 'invalid completed' });
+  }
   // pg returns COUNT (bigint) as a string
   res.json({ count: Number(rows[0].count) });
 });

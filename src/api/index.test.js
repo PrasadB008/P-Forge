@@ -104,6 +104,40 @@ describe('GET /tasks/count', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ count: 0 });
   });
+
+  it('counts only completed tasks with ?completed=true', async () => {
+    db.query.mockResolvedValue({ rows: [{ count: '2' }] });
+
+    const response = await request(app).get('/tasks/count?completed=true');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ count: 2 });
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS count FROM tasks WHERE completed = $1',
+      [true]
+    );
+  });
+
+  it('counts only incomplete tasks with ?completed=false', async () => {
+    db.query.mockResolvedValue({ rows: [{ count: '1' }] });
+
+    const response = await request(app).get('/tasks/count?completed=false');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ count: 1 });
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS count FROM tasks WHERE completed = $1',
+      [false]
+    );
+  });
+
+  it('returns 400 for an invalid completed value', async () => {
+    const response = await request(app).get('/tasks/count?completed=maybe');
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'invalid completed' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
 });
 
 describe('POST /tasks', () => {
