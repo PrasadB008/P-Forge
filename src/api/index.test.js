@@ -127,6 +127,30 @@ describe('POST /tasks', () => {
     expect(response.body).toEqual({ error: 'name is required' });
   });
 
+  it.each([
+    ['whitespace', '   \t\n '],
+    ['a single emoji', '😀'],
+    ['several emoji and spaces', ' 🎉 🚀  ✅ '],
+    ['a ZWJ sequence with modifier', '👩🏽‍💻'],
+    ['a flag', '🇺🇸'],
+    ['a variation-selector emoji', '❤️'],
+  ])('returns 400 when name is only %s', async (_label, name) => {
+    const response = await request(app).post('/tasks').send({ name });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toMatch(/name/);
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it.each(['Buy milk 🥛', '🚀 Launch', '123', '1️⃣'])('accepts name %j', async (name) => {
+    db.query.mockResolvedValue({ rows: [task({ name })] });
+
+    const response = await request(app).post('/tasks').send({ name });
+
+    expect(response.status).toBe(201);
+    expect(db.query).toHaveBeenCalled();
+  });
+
   it('returns 400 when name is too long', async () => {
     const response = await request(app).post('/tasks').send({ name: 'a'.repeat(201) });
 
@@ -168,6 +192,28 @@ describe('PATCH /tasks/:id', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'invalid priority' });
     expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it.each([['   '], [''], ['🎉 🚀'], ['👩🏽‍💻'], [5]])(
+    'returns 400 when renaming to %j',
+    async (name) => {
+      const response = await request(app).patch('/tasks/1').send({ name });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toMatch(/name/);
+      expect(db.query).not.toHaveBeenCalled();
+    }
+  );
+
+  it('renames a task to a name containing text and emoji', async () => {
+    db.query
+      .mockResolvedValueOnce({ rows: [task()] })
+      .mockResolvedValueOnce({ rows: [task({ name: 'Ship 🚀' })] });
+
+    const response = await request(app).patch('/tasks/1').send({ name: ' Ship 🚀 ' });
+
+    expect(response.status).toBe(200);
+    expect(db.query).toHaveBeenLastCalledWith(expect.any(String), [false, 'Ship 🚀', 'medium', 1]);
   });
 
   it('returns 404 when the task does not exist', async () => {
