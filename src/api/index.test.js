@@ -127,6 +127,30 @@ describe('POST /tasks', () => {
     expect(response.body).toEqual({ error: 'name is required' });
   });
 
+  it.each([
+    ['whitespace', '   \t\n '],
+    ['a single emoji', '😀'],
+    ['several emoji and spaces', ' 🎉 🚀  ✅ '],
+    ['a ZWJ sequence with modifier', '👩🏽‍💻'],
+    ['a flag', '🇺🇸'],
+    ['a variation-selector emoji', '❤️'],
+  ])('returns 400 when name is only %s', async (_label, name) => {
+    const response = await request(app).post('/tasks').send({ name });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toMatch(/name/);
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it.each(['Buy milk 🥛', '🚀 Launch', '123', '1️⃣'])('accepts name %j', async (name) => {
+    db.query.mockResolvedValue({ rows: [task({ name })] });
+
+    const response = await request(app).post('/tasks').send({ name });
+
+    expect(response.status).toBe(201);
+    expect(db.query).toHaveBeenCalled();
+  });
+
   it('returns 400 when name is too long', async () => {
     const response = await request(app).post('/tasks').send({ name: 'a'.repeat(201) });
 

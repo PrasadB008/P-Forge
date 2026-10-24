@@ -7,6 +7,12 @@ const PORT = process.env.PORT || 3001;
 const PRIORITIES = ['low', 'medium', 'high'];
 const isValidPriority = (value) => typeof value === 'string' && PRIORITIES.includes(value);
 
+// Emoji (and their joiners/modifiers/selectors) and whitespace carry no readable text.
+// Digits, '#' and '*' are deliberately kept: they are not matched by Extended_Pictographic.
+const EMOJI_OR_WHITESPACE =
+  /[\s\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\uFE0E\uFE0F\u20E3\u{E0020}-\u{E007F}]/gu;
+const hasMeaningfulText = (value) => value.replace(EMOJI_OR_WHITESPACE, '').length > 0;
+
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
@@ -35,6 +41,9 @@ app.post('/tasks', async (req, res) => {
   const { name, priority } = req.body || {};
   if (!name || typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({ error: 'name is required' });
+  }
+  if (!hasMeaningfulText(name)) {
+    return res.status(400).json({ error: 'name must contain text, not only emoji or whitespace' });
   }
   if (name.trim().length > 200) {
     return res.status(400).json({ error: 'name must be 200 characters or less' });
