@@ -194,6 +194,28 @@ describe('PATCH /tasks/:id', () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it.each([['   '], [''], ['🎉 🚀'], ['👩🏽‍💻'], [5]])(
+    'returns 400 when renaming to %j',
+    async (name) => {
+      const response = await request(app).patch('/tasks/1').send({ name });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toMatch(/name/);
+      expect(db.query).not.toHaveBeenCalled();
+    }
+  );
+
+  it('renames a task to a name containing text and emoji', async () => {
+    db.query
+      .mockResolvedValueOnce({ rows: [task()] })
+      .mockResolvedValueOnce({ rows: [task({ name: 'Ship 🚀' })] });
+
+    const response = await request(app).patch('/tasks/1').send({ name: ' Ship 🚀 ' });
+
+    expect(response.status).toBe(200);
+    expect(db.query).toHaveBeenLastCalledWith(expect.any(String), [false, 'Ship 🚀', 'medium', 1]);
+  });
+
   it('returns 404 when the task does not exist', async () => {
     db.query.mockResolvedValueOnce({ rows: [] });
 

@@ -66,6 +66,12 @@ app.patch('/tasks/:id', async (req, res) => {
   if (priority !== undefined && !isValidPriority(priority)) {
     return res.status(400).json({ error: 'invalid priority' });
   }
+  if (name !== undefined && (typeof name !== 'string' || !hasMeaningfulText(name))) {
+    return res.status(400).json({ error: 'name must contain text, not only emoji or whitespace' });
+  }
+  if (name !== undefined && name.trim().length > 200) {
+    return res.status(400).json({ error: 'name must be 200 characters or less' });
+  }
 
   const { rows } = await db.query('SELECT * FROM tasks WHERE id = $1', [id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
