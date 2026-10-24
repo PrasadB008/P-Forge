@@ -178,6 +178,15 @@ describe('PATCH /tasks/:id', () => {
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ error: 'Not found' });
   });
+
+  it('does not run an UPDATE when the task does not exist', async () => {
+    db.query.mockResolvedValueOnce({ rows: [] });
+
+    await request(app).patch('/tasks/99').send({ completed: true });
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith('SELECT * FROM tasks WHERE id = $1', [99]);
+  });
 });
 
 describe('DELETE /tasks/:id', () => {
@@ -195,5 +204,15 @@ describe('DELETE /tasks/:id', () => {
     const response = await request(app).delete('/tasks/1');
 
     expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'Not found' });
+  });
+
+  it('does not run a DELETE when the task does not exist', async () => {
+    db.query.mockResolvedValueOnce({ rows: [] });
+
+    await request(app).delete('/tasks/99');
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith('SELECT * FROM tasks WHERE id = $1', [99]);
   });
 });
