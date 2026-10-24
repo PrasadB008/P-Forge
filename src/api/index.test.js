@@ -85,6 +85,44 @@ describe('GET /tasks', () => {
   });
 });
 
+describe('GET /tasks/:id', () => {
+  it('returns the task when it exists', async () => {
+    const mockTask = task({ id: 5, priority: 'high' });
+    db.query.mockResolvedValueOnce({ rows: [mockTask] });
+
+    const response = await request(app).get('/tasks/5');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockTask);
+    expect(db.query).toHaveBeenCalledWith('SELECT * FROM tasks WHERE id = $1', [5]);
+  });
+
+  it('returns 404 when the task does not exist', async () => {
+    db.query.mockResolvedValueOnce({ rows: [] });
+
+    const response = await request(app).get('/tasks/99');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'Not found' });
+  });
+
+  it.each(['abc', '1.5', '-1'])('returns 404 without querying for id %j', async (id) => {
+    const response = await request(app).get(`/tasks/${id}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'Not found' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 on database errors', async () => {
+    db.query.mockRejectedValue(new Error('Database connection failed'));
+
+    const response = await request(app).get('/tasks/1');
+
+    expect(response.status).toBe(500);
+  });
+});
+
 describe('POST /tasks', () => {
   it('defaults priority to medium when omitted', async () => {
     db.query.mockResolvedValue({ rows: [task({ name: 'New' })] });

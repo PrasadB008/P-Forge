@@ -30,6 +30,16 @@ app.get('/tasks', async (req, res) => {
   res.json(rows);
 });
 
+// GET /tasks/:id — fetch a single task, 404 if it does not exist
+app.get('/tasks/:id', async (req, res) => {
+  // A non-numeric id can never match a task; skip the query (it would error in Postgres)
+  if (!/^\d+$/.test(req.params.id)) return res.status(404).json({ error: 'Not found' });
+  const id = parseInt(req.params.id, 10);
+  const { rows } = await db.query('SELECT * FROM tasks WHERE id = $1', [id]);
+  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
+});
+
 // POST /tasks — create a task
 app.post('/tasks', async (req, res) => {
   const { name, priority } = req.body || {};
