@@ -66,6 +66,35 @@ The API is not exposed directly, but you can reach it through the web container 
 | POST | `/tasks` | Create a task (`{ "title": "..." }`) |
 | PATCH | `/tasks/:id` | Update a task (`{ "completed": true }` or `{ "title": "..." }`) |
 
+## Running the API locally
+
+To run the API directly (without Docker Compose), you need a PostgreSQL database running and the migrations applied.
+
+### Prerequisites
+
+- Node.js 22+
+- PostgreSQL 17 running locally or accessible via `DATABASE_URL`
+
+### Start the API
+
+```bash
+cd src/api
+npm install
+DATABASE_URL=postgres://app:app@localhost:5432/app npm start
+```
+
+The API will listen on port 3001 by default. To use a different port:
+
+```bash
+PORT=8080 DATABASE_URL=postgres://app:app@localhost:5432/app npm start
+```
+
+For development with auto-reload:
+
+```bash
+DATABASE_URL=postgres://app:app@localhost:5432/app npm run dev
+```
+
 ## Project structure
 
 ```
