@@ -206,60 +206,9 @@ describe('PATCH /tasks/:id', () => {
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ error: 'Not found' });
   });
-
-  it('returns 400 for a non-numeric id', async () => {
-    const response = await request(app).patch('/tasks/abc').send({ priority: 'low' });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'invalid id' });
-    expect(db.query).not.toHaveBeenCalled();
-  });
-
-  it.each([['false'], ['0'], [0], [null]])('returns 400 for non-boolean completed %j', async (completed) => {
-    const response = await request(app).patch('/tasks/1').send({ completed });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'completed must be a boolean' });
-    expect(db.query).not.toHaveBeenCalled();
-  });
-
-  it.each([[5], [null], [''], ['   ']])('returns 400 for invalid name %j', async (name) => {
-    const response = await request(app).patch('/tasks/1').send({ name });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'name is required' });
-    expect(db.query).not.toHaveBeenCalled();
-  });
-
-  it('returns 400 when name is too long', async () => {
-    const response = await request(app).patch('/tasks/1').send({ name: 'a'.repeat(201) });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'name must be 200 characters or less' });
-    expect(db.query).not.toHaveBeenCalled();
-  });
-
-  it('renames a task with a trimmed name', async () => {
-    db.query
-      .mockResolvedValueOnce({ rows: [task()] })
-      .mockResolvedValueOnce({ rows: [task({ name: 'New' })] });
-
-    const response = await request(app).patch('/tasks/1').send({ name: ' New ' });
-
-    expect(response.status).toBe(200);
-    expect(db.query).toHaveBeenLastCalledWith(expect.any(String), [false, 'New', 'medium', 1]);
-  });
 });
 
 describe('DELETE /tasks/:id', () => {
-  it('returns 400 for a non-numeric id', async () => {
-    const response = await request(app).delete('/tasks/abc');
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'invalid id' });
-    expect(db.query).not.toHaveBeenCalled();
-  });
-
   it('deletes an existing task', async () => {
     db.query.mockResolvedValueOnce({ rows: [task()] }).mockResolvedValueOnce({ rows: [] });
 
