@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('./db');
+const { averageTaskCount } = require('./stats');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,6 +12,19 @@ app.use(express.json());
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+// GET /stats/average-task-count — average number of tasks per priority list.
+// The tasks table has no lists, so each priority (low, medium, high) is treated as one list.
+app.get('/stats/average-task-count', async (_req, res) => {
+  const { rows } = await db.query(
+    'SELECT priority, COUNT(*)::int AS count FROM tasks GROUP BY priority'
+  );
+  const lists = PRIORITIES.map((priority) => {
+    const row = rows.find((r) => r.priority === priority);
+    return { priority, tasks: new Array(row ? Number(row.count) : 0) };
+  });
+  res.json({ averageTaskCount: averageTaskCount(lists) });
 });
 
 // GET /tasks — list all tasks, optionally filtered by ?priority=low|medium|high
