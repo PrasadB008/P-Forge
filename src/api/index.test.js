@@ -26,6 +26,34 @@ describe('GET /health', () => {
   });
 });
 
+describe('GET /stats/average-task-count', () => {
+  it('averages tasks across the low, medium and high priority lists', async () => {
+    db.query.mockResolvedValue({
+      rows: [
+        task({ id: 1, priority: 'low' }),
+        task({ id: 2, priority: 'high' }),
+        task({ id: 3, priority: 'high' }),
+        task({ id: 4, priority: 'high' }),
+        task({ id: 5, priority: 'high' }),
+      ],
+    });
+
+    const response = await request(app).get('/stats/average-task-count');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ averageTaskCount: 5 / 3 });
+  });
+
+  it('returns 0 when there are no tasks', async () => {
+    db.query.mockResolvedValue({ rows: [] });
+
+    const response = await request(app).get('/stats/average-task-count');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ averageTaskCount: 0 });
+  });
+});
+
 describe('GET /tasks', () => {
   it('returns an empty array when no tasks exist', async () => {
     db.query.mockResolvedValue({ rows: [] });
