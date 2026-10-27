@@ -24,11 +24,13 @@ app.get('/health', (_req, res) => {
 // GET /stats/average-task-count — average number of tasks per priority list.
 // The tasks table has no lists, so each priority (low, medium, high) is treated as one list.
 app.get('/stats/average-task-count', async (_req, res) => {
-  const { rows } = await db.query('SELECT * FROM tasks');
-  const lists = PRIORITIES.map((priority) => ({
-    priority,
-    tasks: rows.filter((row) => row.priority === priority),
-  }));
+  const { rows } = await db.query(
+    'SELECT priority, COUNT(*)::int AS count FROM tasks GROUP BY priority'
+  );
+  const lists = PRIORITIES.map((priority) => {
+    const row = rows.find((r) => r.priority === priority);
+    return { priority, tasks: new Array(row ? Number(row.count) : 0) };
+  });
   res.json({ averageTaskCount: averageTaskCount(lists) });
 });
 
