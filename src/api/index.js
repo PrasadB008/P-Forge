@@ -8,6 +8,13 @@ const PORT = process.env.PORT || 3001;
 const PRIORITIES = ['low', 'medium', 'high'];
 const isValidPriority = (value) => typeof value === 'string' && PRIORITIES.includes(value);
 
+// Returns an error message when the task name is invalid, otherwise null.
+const validateName = (name) => {
+  if (!name || typeof name !== 'string' || !name.trim()) return 'name is required';
+  if (name.trim().length > 200) return 'name must be 200 characters or less';
+  return null;
+};
+
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
@@ -45,12 +52,8 @@ app.get('/tasks', async (req, res) => {
 // POST /tasks — create a task
 app.post('/tasks', async (req, res) => {
   const { name, priority } = req.body || {};
-  if (!name || typeof name !== 'string' || !name.trim()) {
-    return res.status(400).json({ error: 'name is required' });
-  }
-  if (name.trim().length > 200) {
-    return res.status(400).json({ error: 'name must be 200 characters or less' });
-  }
+  const nameError = validateName(name);
+  if (nameError) return res.status(400).json({ error: nameError });
   if (priority !== undefined && !isValidPriority(priority)) {
     return res.status(400).json({ error: 'invalid priority' });
   }
@@ -64,17 +67,25 @@ app.post('/tasks', async (req, res) => {
 // PATCH /tasks/:id — update a task (complete/uncomplete, rename or change priority)
 app.patch('/tasks/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
+  if (Number.isNaN(id)) return res.status(400).json({ error: 'invalid id' });
   const { completed, name, priority } = req.body || {};
 
   if (priority !== undefined && !isValidPriority(priority)) {
     return res.status(400).json({ error: 'invalid priority' });
+  }
+  if (completed !== undefined && typeof completed !== 'boolean') {
+    return res.status(400).json({ error: 'completed must be a boolean' });
+  }
+  if (name !== undefined) {
+    const nameError = validateName(name);
+    if (nameError) return res.status(400).json({ error: nameError });
   }
 
   const { rows } = await db.query('SELECT * FROM tasks WHERE id = $1', [id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
   const current = rows[0];
-  const newCompleted = completed !== undefined ? Boolean(completed) : current.completed;
+  const newCompleted = completed !== undefined ? completed : current.completed;
   const newName = name !== undefined ? name.trim() : current.name;
   const newPriority = priority !== undefined ? priority : current.priority;
 
@@ -88,6 +99,7 @@ app.patch('/tasks/:id', async (req, res) => {
 // DELETE /tasks/:id — delete a task
 app.delete('/tasks/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
+  if (Number.isNaN(id)) return res.status(400).json({ error: 'invalid id' });
   const { rows } = await db.query('SELECT * FROM tasks WHERE id = $1', [id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
