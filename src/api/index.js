@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('./db');
+const { percentDone } = require('./progress');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +29,14 @@ app.get('/tasks', async (req, res) => {
   }
   const { rows } = await db.query('SELECT * FROM tasks ORDER BY created_at ASC');
   res.json(rows);
+});
+
+// GET /tasks/progress — completed/total counts and percentage of completed tasks
+app.get('/tasks/progress', async (_req, res) => {
+  const { rows } = await db.query('SELECT * FROM tasks');
+  const total = rows.length;
+  const done = rows.filter((row) => row.completed).length;
+  res.json({ done, total, percent: percentDone(done, total) });
 });
 
 // POST /tasks — create a task
