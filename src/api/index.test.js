@@ -26,6 +26,28 @@ describe('GET /health', () => {
   });
 });
 
+describe('GET /tasks/progress', () => {
+  it('returns 0 percent for an empty task list', async () => {
+    db.query.mockResolvedValue({ rows: [] });
+
+    const response = await request(app).get('/tasks/progress');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ done: 0, total: 0, percent: 0 });
+  });
+
+  it('returns counts and percentage of completed tasks', async () => {
+    db.query.mockResolvedValue({
+      rows: [task({ completed: true }), task({ id: 2 }), task({ id: 3 }), task({ id: 4 })],
+    });
+
+    const response = await request(app).get('/tasks/progress');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ done: 1, total: 4, percent: 25 });
+  });
+});
+
 describe('GET /tasks', () => {
   it('returns an empty array when no tasks exist', async () => {
     db.query.mockResolvedValue({ rows: [] });
