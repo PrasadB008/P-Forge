@@ -170,6 +170,38 @@ describe('PATCH /tasks/:id', () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it('returns 400 for a non-numeric id', async () => {
+    const response = await request(app).patch('/tasks/abc').send({ priority: 'low' });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'invalid id' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it.each([['false'], ['0'], [1], [null]])('returns 400 for non-boolean completed %j', async (completed) => {
+    const response = await request(app).patch('/tasks/1').send({ completed });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'completed must be a boolean' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it.each([[123], [null], ['   '], ['']])('returns 400 for invalid name %j', async (name) => {
+    const response = await request(app).patch('/tasks/1').send({ name });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name is required' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when name is too long', async () => {
+    const response = await request(app).patch('/tasks/1').send({ name: 'a'.repeat(201) });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'name must be 200 characters or less' });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
   it('returns 404 when the task does not exist', async () => {
     db.query.mockResolvedValueOnce({ rows: [] });
 
@@ -187,6 +219,14 @@ describe('DELETE /tasks/:id', () => {
     const response = await request(app).delete('/tasks/1');
 
     expect(response.status).toBe(204);
+  });
+
+  it('returns 400 for a non-numeric id', async () => {
+    const response = await request(app).delete('/tasks/abc');
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'invalid id' });
+    expect(db.query).not.toHaveBeenCalled();
   });
 
   it('returns 404 when the task does not exist', async () => {
